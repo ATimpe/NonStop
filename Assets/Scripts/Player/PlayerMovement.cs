@@ -49,6 +49,11 @@ public class PlayerMovement : MonoBehaviour {
     private Vector3 normalVector = Vector3.up;
     private Vector3 wallNormalVector;
 
+    // Firing
+    private FireManager _FireManager = new FireManager();
+    public string fireBtn;
+    public LayerMask fireMask;
+
     //Ground Sticking
     private RotationManager _RotationManager = new RotationManager();
     public float GroundBuffer;                      // The max units an object can be off the ground while still being considered on the ground
@@ -73,6 +78,7 @@ public class PlayerMovement : MonoBehaviour {
     private void Update() {
         MyInput();
         Look();
+        _FireManager.Update(fireBtn, playerCam.transform.position, playerCam.transform.forward, fireMask);
     }
 
     /// <summary>
