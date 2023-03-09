@@ -3,17 +3,16 @@ using UnityEngine;
 
 public class FireManager
 {
-    public void Update(string fireBtn, Vector3 firePosition, Vector3 fireDirection, LayerMask lm)
+    public void Update(bool isFiring, Vector3 firePosition, Vector3 fireDirection, LayerMask lm)
     {
-        if (Input.GetButtonDown(fireBtn))
+        if (isFiring)
         {
-            Debug.Log("ping");
             // TODO: Trigger hud animation
             RaycastHit hit;
             // Maybe change the max distance to a defined value to avoid targets far away from being triggered
             if (Physics.Raycast(firePosition, fireDirection, out hit, Mathf.Infinity, lm))
             {
-                Debug.Log(hit.collider.gameObject);
+                //Debug.Log(hit.collider.gameObject);
 
                 BulletTrigger bt = hit.collider.gameObject.GetComponent<BulletTrigger>();
 

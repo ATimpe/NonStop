@@ -1,6 +1,6 @@
 // https://github.com/DaniDevy/FPS_Movement_Rigidbody
 // Some stupid rigidbody based movement by Dani
-
+/*
 using System;
 using UnityEngine;
 
@@ -71,7 +71,7 @@ public class PlayerMovement : MonoBehaviour {
 
     
     private void FixedUpdate() {
-        _RotationManager.Update(rb, transform, GroundBuffer, orientation);
+        _RotationManager.FixedUpdate(rb, transform, GroundBuffer, orientation);
         Movement();
     }
 
@@ -90,12 +90,12 @@ public class PlayerMovement : MonoBehaviour {
         y = 1f;
         jumping = Input.GetButton("Jump");
         crouching = Input.GetKey(KeyCode.LeftControl);
-        /*
+        
         //Crouching
         if (Input.GetKeyDown(KeyCode.LeftControl))
             StartCrouch();
         if (Input.GetKeyUp(KeyCode.LeftControl))
-            StopCrouch();*/
+            StopCrouch();
     }
 
     private void StartCrouch() {
@@ -219,14 +219,14 @@ public class PlayerMovement : MonoBehaviour {
             return;
         }
         //Debug.Log(orientation.transform.right);
-        /*
+        
         //Counter movement
         if (Math.Abs(mag.x) > threshold && Math.Abs(x) < 0.05f || (mag.x < -threshold && x > 0) || (mag.x > threshold && x < 0)) {
             rb.AddForce(moveSpeed * orientation.transform.right * Time.deltaTime * -mag.x * counterMovement);
         }
         if (Math.Abs(mag.y) > threshold && Math.Abs(y) < 0.05f || (mag.y < -threshold && y > 0) || (mag.y > threshold && y < 0)) {
             rb.AddForce(moveSpeed * orientation.transform.forward * Time.deltaTime * -mag.y * counterMovement);
-        }*/
+        }
         
         //Limit diagonal running. This will also cause a full stop if sliding fast and un-crouching, so not optimal.
         if (Mathf.Sqrt((Mathf.Pow(rb.velocity.x, 2) + Mathf.Pow(rb.velocity.z, 2))) > maxSpeed) {
@@ -294,4 +294,4 @@ public class PlayerMovement : MonoBehaviour {
         grounded = false;
     }
     
-}
+}*/
