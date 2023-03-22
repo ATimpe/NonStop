@@ -19,13 +19,19 @@ public class Player : MonoBehaviour
 
     // Core
     [SerializeField] Transform orientation;
+    [SerializeField] PlayerUI playerUI;
+
+    // TODO make a lot of these values that won't change during runtime static and set the values internally in each manager through Start() functions
 
     [Header("Movement")]
     [SerializeField] float baseSpeed = 50.0f;            // Player speed when the player is at normal base speed
     [SerializeField] float speedGain = 1f;               // The amount per second that speed is gained when you are bellow the base speed
     [SerializeField] float speedDecay = 0.5f;            // The amount per second that speed reduced when you are above the base speed
+    [SerializeField] float midairSpeedDecay;
     [SerializeField] float speedBoostIncrement = 1f;     // The amount speedMultiplier is incremented when dashing
     [SerializeField] float strafeSpeed = 20.0f;
+    [SerializeField] float speedMultiBoostCeiling;       // The speed at which you can no longer boost
+    [SerializeField] float boostCooldown;                // Ine seconds the amount of time it takes to boost again
     // TODO: maybe add a seperate multiplier for strafe speed
     float speedMultiplier = 0f;                          // The multiplier used for player speed
 
@@ -43,6 +49,7 @@ public class Player : MonoBehaviour
     [SerializeField] float jumpForce = 30.0f;
     [SerializeField] float crouchJumpAngle;
     private bool isGrounded = false;
+    private bool isDashingMidair = false;
 
     [Header("Crouching")]
     [SerializeField] float crouchCameraSpeed;
@@ -58,7 +65,10 @@ public class Player : MonoBehaviour
     [SerializeField] Camera playerCam;
     [SerializeField] Transform cameraRoot;
     [SerializeField] float sensitivity = 15.0f;
-    [SerializeField] float sensMultiplier = 1f;
+    [SerializeField] float baseFOV;                      // The FOV at speed multiplier 1
+    [SerializeField] float FOVMultiplier;                // FOV multiplier per per speedMultiplier increment
+                                                        // ex. speedMultiplier = 1; FOV = baseFOV;
+                                                        //     speedMultiplier = 2; FOV = baseFOV + (baseFOV * FOVMultiplier)
 
     [Header("Firing")]
     [SerializeField] float fireCooldown;                 // Time in seconds between shots
@@ -68,38 +78,49 @@ public class Player : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         rb = gameObject.GetComponent<Rigidbody>();
-        Time.timeScale = 1f;
+
+        inputManager.Start(jumpBtn, fireBtn, dashBtn, crouchBtn);
+        speedManager.Start(speedGain, speedDecay, midairSpeedDecay, speedBoostIncrement, speedMultiBoostCeiling, boostCooldown);
+        jumpManager.Start(rb, orientation, jumpForce, crouchJumpAngle, baseSpeed);
+        cameraManager.Start(playerCam, cameraRoot, orientation, crouchPoint, sensitivity, crouchCameraSpeed, baseFOV);
+        fireManager.Start(fireMask);
+        movementManager.Start(rb, orientation, baseSpeed, strafeSpeed);
+        rotationManager.Start(rb, transform, playerFloor, groundBuffer, groundMask);
     }
 
     void Update()
     {
-        inputManager.Update(jumpBtn, out isJumping, fireBtn, out isFiring, dashBtn, out isDashing, crouchBtn, out isCrouching);
-        speedManager.Update(isDashing, ref speedMultiplier, speedGain, speedDecay, speedBoostIncrement);
-        //Debug.Log(speedMultiplier);
         isGrounded = GroundCheck();
-        jumpManager.Update(isJumping, isGrounded, rb, orientation, jumpForce, isCrouching, crouchJumpAngle);
-        cameraManager.Update(playerCam, cameraRoot, orientation, sensitivity, sensMultiplier, isCrouching, crouchCameraSpeed, crouchPoint);
-        fireManager.Update(isFiring, playerCam.transform.position, playerCam.transform.forward, fireMask);
-        //rotationManager.Update(transform);
-        rotationManager.Update(rb, transform, playerFloor, groundBuffer, orientation, ref previousHit, groundMask);
+        inputManager.Update(out isJumping, out isFiring, out isDashing, out isCrouching);
+        speedManager.Update(isDashing, ref speedMultiplier, isGrounded, out isDashingMidair);
+        jumpManager.Update(isJumping, isGrounded, isCrouching, ref speedMultiplier);
+        cameraManager.Update(isCrouching, FOVMultiplier, speedMultiplier);
+        fireManager.Update(isFiring, playerCam.transform.position, playerCam.transform.forward);
+        movementManager.Update(speedMultiplier, isGrounded, isDashingMidair);
+        rotationManager.Update(ref previousHit);
     }
 
-    private void FixedUpdate()
+    public void Death()
     {
-        movementManager.FixedUpdate(orientation, rb, baseSpeed, speedMultiplier, strafeSpeed, IsolateUpVelocity(rb.velocity, orientation.rotation));
-    }
-
-    // Used for jumping while rotated. It gets the upwards velocity relative to the current rotation of the player.
-    private Vector3 IsolateUpVelocity(Vector3 velocity, Quaternion rotation)
-    {
-        // Rotates the current velocity vector to be what the velocity would be if the player was facing (0, 0, 1) direction
-        Vector3 VelocityAtForward = Quaternion.Inverse(rotation) * velocity;
-        float UpVelocity = VelocityAtForward.y;
-        return rotation * new Vector3(0f, UpVelocity, 0f);
+        speedMultiplier = 0;
+        rb.velocity = Vector3.zero;
+        playerUI.Death();
+        GameManager.Death();
+        GameManager.Respawn();
     }
 
     private bool GroundCheck()
     {
-        return Physics.Raycast(rb.transform.position, -orientation.up, 1f + 0.2f);
+        return Physics.Raycast(rb.transform.position, -orientation.up, 1f + 0.2f, groundMask);
+    }
+
+    public float GetSpeedMultiplier()
+    {
+        return speedMultiplier;
+    }
+
+    public float GetSpeedMultiBoostCeiling()
+    {
+        return speedMultiBoostCeiling;
     }
 }

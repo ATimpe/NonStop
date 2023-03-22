@@ -6,18 +6,29 @@ public class CameraManager
 {
     private float desiredX;
     private float xRotation;
+    private Camera playerCam;
+    private Transform cameraRoot;
+    private Transform orientation;
+    private Transform crouchPoint;
+    private float sensitivity;
+    private float crouchCameraSpeed;
+    private float baseFOV;
 
-    public void Update(Camera playerCam, 
-        Transform cameraRoot,
-        Transform orientation, 
-        float sensitivity, 
-        float sensMultiplier, 
-        bool isCrouching,
-        float crouchCameraSpeed,
-        Transform crouchPoint)
+    public void Start(Camera _playerCam, Transform _cameraRoot, Transform _orientation, Transform _crouchPoint, float _sensitivity, float _crouchCameraSpeed, float _baseFOV)
     {
-        float mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.fixedDeltaTime * sensMultiplier;
-        float mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.fixedDeltaTime * sensMultiplier;
+        playerCam = _playerCam;
+        cameraRoot = _cameraRoot;
+        orientation = _orientation;
+        crouchPoint = _crouchPoint;
+        sensitivity = _sensitivity;
+        crouchCameraSpeed = _crouchCameraSpeed;
+        baseFOV = _baseFOV;
+    }
+
+    public void Update(bool isCrouching, float FOVMultiplier, float speedMultiplier)
+    {
+        float mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.fixedDeltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.fixedDeltaTime;
 
         //Find current look rotation
         Vector3 rot = playerCam.transform.localRotation.eulerAngles;
@@ -39,5 +50,7 @@ public class CameraManager
         {
             playerCam.transform.position = Vector3.MoveTowards(playerCam.transform.position, cameraRoot.position, crouchCameraSpeed * Time.deltaTime);
         }
+
+        playerCam.fieldOfView = baseFOV + (speedMultiplier - 1f) * FOVMultiplier * baseFOV;
     }
 }

@@ -4,17 +4,40 @@ using UnityEngine;
 
 public class RotationManager
 {
-    public void Update(Rigidbody rb, Transform transform, Transform playerFloor, float GroundBuffer, Transform Orientation, ref RaycastHit previousHit, LayerMask groundMask)
+    private Rigidbody rb;
+    private Transform transform; 
+    private Transform playerFloor;
+    private float groundBuffer; 
+    private LayerMask groundMask;
+
+    public void Start(Rigidbody _rb, Transform _transform, Transform _playerFloor, float _groundBuffer, LayerMask _groundMask)
+    {
+        rb = _rb;
+        transform = _transform;
+        playerFloor = _playerFloor;
+        groundBuffer = _groundBuffer;
+        groundMask = _groundMask;
+    }
+
+    public void Update(ref RaycastHit previousHit)
     {
         // https://gamedev.stackexchange.com/questions/151659/rotating-according-to-ground-normal-on-unity-3d
 		RaycastHit hit;
-		if (Physics.Raycast(transform.position, -transform.up, out hit, GroundBuffer, groundMask)) {
+		if (Physics.Raycast(transform.position, -transform.up, out hit, groundBuffer, groundMask)) {
             Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, hit.normal);
             //transform.rotation = Quaternion.Slerp(transform.rotation, slopeRotation * transform.rotation, 10 * Time.deltaTime);
             rb.MoveRotation(slopeRotation * transform.rotation);
+            Physics.gravity = -transform.up * Physics.gravity.magnitude;
 		}
 
-        Physics.gravity = -transform.up * Physics.gravity.magnitude;
+        else
+        {
+            //Vector3 previousForward = transform.forward;
+            //Vector3[] isolatedVelocities = IsolateVelocity.RelativeVelocity(rb.velocity, transform.rotation);
+            rb.MoveRotation(Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0f, transform.eulerAngles.y, 0f), 100f * Time.deltaTime));
+            //rb.velocity = Quaternion.FromToRotation(previousForward, transform.forward) * (isolatedVelocities[0] + isolatedVelocities[2]) + isolatedVelocities[1];
+            Physics.gravity = Vector3.down * Physics.gravity.magnitude;
+        }
     }
 }
 

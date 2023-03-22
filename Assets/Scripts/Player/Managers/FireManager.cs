@@ -3,7 +3,14 @@ using UnityEngine;
 
 public class FireManager
 {
-    public void Update(bool isFiring, Vector3 firePosition, Vector3 fireDirection, LayerMask lm)
+    private LayerMask lm;
+
+    public void Start(LayerMask _lm)
+    {
+        lm = _lm;
+    }
+
+    public void Update(bool isFiring, Vector3 firePosition, Vector3 fireDirection)
     {
         if (isFiring)
         {
