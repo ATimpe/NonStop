@@ -24,6 +24,18 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene("TestLevel1");
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("TitleScene");
+            Cursor.lockState = CursorLockMode.None;
+            Destroy(FindObjectsOfType<StatsHolder>()[0].gameObject);
+        }
+
         if (player.transform.position.y <= YDeathFloor)
         {
             player.Death();
@@ -71,6 +83,7 @@ public class GameManager : MonoBehaviour
     {
         GameManager gm = FindObjectsOfType<GameManager>()[0];
         gm.statsHolder.SetStats(gm.currentTime, gm.deaths);
+        Cursor.lockState = CursorLockMode.None;
         SceneManager.LoadScene(gm.finishScene);
     }
 

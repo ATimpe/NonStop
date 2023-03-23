@@ -275,7 +275,7 @@ MonoBehaviour:
   fireBtn: Fire1
   dashBtn: Dash
   crouchBtn: Crouch
-  jumpForce: 25
+  jumpForce: 30
   crouchJumpAngle: 40
   crouchCameraSpeed: 5
   crouchPoint: {fileID: 3135705995556356527}
@@ -288,7 +288,7 @@ MonoBehaviour:
   cameraRoot: {fileID: 3135705995651853851}
   sensitivity: 25
   baseFOV: 90
-  FOVMultiplier: 0.1
+  FOVMultiplier: 0.2
   fireCooldown: 0
   fireMask:
     serializedVersion: 2

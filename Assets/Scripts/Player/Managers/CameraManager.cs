@@ -53,4 +53,10 @@ public class CameraManager
 
         playerCam.fieldOfView = baseFOV + (speedMultiplier - 1f) * FOVMultiplier * baseFOV;
     }
+
+    public void ResetRotation()
+    {
+        xRotation = 0;
+        playerCam.transform.rotation = new Quaternion();
+    }
 }

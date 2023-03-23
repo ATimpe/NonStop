@@ -107,6 +107,8 @@ public class Player : MonoBehaviour
         playerUI.Death();
         GameManager.Death();
         GameManager.Respawn();
+        orientation.rotation = new Quaternion(0f, 0f, 0f, 0f);
+        cameraManager.ResetRotation();
     }
 
     private bool GroundCheck()

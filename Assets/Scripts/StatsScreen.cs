@@ -28,7 +28,8 @@ public class StatsScreen : MonoBehaviour
 
     public void Restart()
     {
-        SceneManager.LoadScene("TestLevel1");
+        Destroy(FindObjectsOfType<StatsHolder>()[0].gameObject);
+        SceneManager.LoadScene("TitleScene");
     }
 
 }
